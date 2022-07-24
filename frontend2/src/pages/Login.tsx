@@ -9,10 +9,15 @@ import {
 } from "@mui/material";
 import axios from "axios";
 
-import Navbar from "./Navbar";
+import Navbar from "../components/Navbar";
 import { Navigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../app/hooks";
+import { loginUser, logInUser } from "../features/user/userSlice";
 
-function Register() {
+function Login() {
+    const user = useAppSelector((state) => state.user);
+    const dispatch = useAppDispatch();
+
     interface RegisterState {
         password: string;
         passwordError: boolean;
@@ -23,7 +28,7 @@ function Register() {
         usernameErrorMessage: string;
 
         otherErrorMessage: string;
-        registerSuccess: boolean;
+        loginSuccess: boolean;
     }
 
     interface ErrorsObject {
@@ -42,8 +47,10 @@ function Register() {
         usernameErrorMessage: "",
 
         otherErrorMessage: "",
-        registerSuccess: false,
+        loginSuccess: false,
     });
+
+    // e.target.name: e.target.value
 
     function updatePassword(e: React.ChangeEvent<HTMLInputElement>) {
         setState({
@@ -92,38 +99,45 @@ function Register() {
     }
 
     // Promise<T> vs Promise<any> ?
+    // should of written an async thunk
     const handleSubmit = async (): Promise<any> => {
-        await axios
-            .post(
-                "http://localhost:8000/users/register",
-                { username: state.username, password: state.password },
-                { withCredentials: true } // need for cookies?
-            )
-            .then((data) => {
-                console.log(data);
-                // dispatch(logInUser(userInfo))
-                // update redux store
-                // redirect to
-                setState({
-                    ...state,
-                    registerSuccess: true,
-                });
-            })
-            .catch((err) => {
-                updateErrorMessages(err.response.data);
-            });
+        dispatch(
+            loginUser({ username: state.username, password: state.password })
+        );
+
+        // await axios
+        //     .post(
+        //         "http://localhost:8000/users/login",
+        //         { username: state.username, password: state.password },
+        //         { withCredentials: true } // need for cookies?
+        //     )
+        //     .then((response) => {
+        //         console.log(response.data.username);
+        //         // dispatch(logInUser(userInfo))
+        //         // dispatch(updateUsername())
+        //         dispatch(logInUser(response.data.username));
+        //         // update redux store
+        //         // redirect to
+        //         setState({
+        //             ...state,
+        //             loginSuccess: true,
+        //         });
+        //     })
+        //     .catch((err) => {
+        //         updateErrorMessages(err.response.data);
+        //     });
     };
 
-    let registeredPopup = <></>;
+    let loggedInPopup = <></>;
 
-    if (state.registerSuccess) {
-        registeredPopup = (
+    if (state.loginSuccess) {
+        loggedInPopup = (
             <>
                 <Navigate replace to="/" />;
                 <Grid container item justifyContent="center">
                     <Grid item xs={8} md={4}>
                         <Alert variant="filled">
-                            {"Registered, if not redirected click "}
+                            {"Logged In, if not redirected click "}
                             <Link href="/" color="#FFFFFF">
                                 {"here"}
                             </Link>
@@ -142,17 +156,13 @@ function Register() {
             spacing={2}
             pt={4}
         >
-            {/* this looks super cringe but 
-            https://stackoverflow.com/questions/50610049/how-to-organize-material-ui-grid-into-rows 
-            nesting grids is the way to do it without messing  w/ sx prop */}
-
             <Grid container item pb={5}>
                 <Navbar />
             </Grid>
             <Grid container justifyContent="center" item xs={12}>
                 <Grid item xs={8}>
                     <Typography align="center" variant="h3">
-                        {"Register"}
+                        {"Login"}
                     </Typography>
                 </Grid>
             </Grid>
@@ -176,7 +186,7 @@ function Register() {
                 <Grid item xs={8} md={4}>
                     <TextField
                         required
-                        type="new-password" // google wants this instead of password
+                        type="password" // google wants this instead of password
                         variant="outlined"
                         fullWidth
                         label="Password"
@@ -190,7 +200,7 @@ function Register() {
             {/* TODO handle unexpected errors better */}
             <div>{state.otherErrorMessage}</div>
 
-            {registeredPopup}
+            {loggedInPopup}
 
             <Grid container item justifyContent="center">
                 <Grid item xs={8} md={4}>
@@ -199,15 +209,15 @@ function Register() {
                         variant="contained"
                         onClick={handleSubmit}
                     >
-                        {"Register"}
+                        {"Login"}
                     </Button>
                 </Grid>
             </Grid>
             <Grid container item justifyContent="center">
                 <Grid item xs={8} md={4}>
                     <Typography align="center">
-                        {"already have an account? "}
-                        <Link href="/login"> {"login"}</Link>
+                        {"don't have an account? "}
+                        <Link href="/register"> {"register"}</Link>
                     </Typography>
                 </Grid>
             </Grid>
@@ -215,4 +225,4 @@ function Register() {
     );
 }
 
-export default Register;
+export default Login;

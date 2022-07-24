@@ -88,8 +88,7 @@ const loginUser = async (req, res) => {
     const { username, password } = req.body;
 
     try {
-        const user = await User.login(username, password); // no await intellisense but need to await regardless
-        console.log(user);
+        const user = await User.login(username, password);
         if (user) {
             const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
                 expiresIn: 1000 * 5,
@@ -98,6 +97,7 @@ const loginUser = async (req, res) => {
                 httpOnly: true,
                 maxAge: 1000 * 60 * 60,
             });
+
             res.send(user);
             res.status(200);
         }
@@ -116,5 +116,7 @@ const logoutUser = async (req, res) => {
     res.send("logged out"); // i need this for some reason or it just doesnt work ?
     res.status(200);
 };
+
+// TODO write a method specifaically for checking if a user is logged in
 
 module.exports = { getMe, registerUser, loginUser, logoutUser };
