@@ -7,12 +7,11 @@ import {
     Alert,
     Link,
 } from "@mui/material";
-import axios from "axios";
 
 import Navbar from "../components/Navbar";
 import { Navigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { loginUser, logInUser } from "../features/user/userSlice";
+import { loginUser } from "../features/user/userSlice";
 
 function Login() {
     const user = useAppSelector((state) => state.user);
@@ -20,117 +19,46 @@ function Login() {
 
     interface RegisterState {
         password: string;
-        passwordError: boolean;
-        passwordErrorMessage: string;
-
         username: string;
-        usernameError: boolean;
-        usernameErrorMessage: string;
-
-        otherErrorMessage: string;
         loginSuccess: boolean;
-    }
-
-    interface ErrorsObject {
-        username: string;
-        password: string;
-        other: string;
     }
 
     const [state, setState] = useState<RegisterState>({
         password: "",
-        passwordError: false,
-        passwordErrorMessage: "",
-
         username: "",
-        usernameError: false,
-        usernameErrorMessage: "",
-
-        otherErrorMessage: "",
         loginSuccess: false,
     });
 
-    // e.target.name: e.target.value
-
-    function updatePassword(e: React.ChangeEvent<HTMLInputElement>) {
+    function updateStateOnChange(e: React.ChangeEvent<HTMLInputElement>) {
         setState({
             ...state,
-            password: e.target.value,
-            passwordError: false,
-            passwordErrorMessage: "",
+            [e.target.name]: e.target.value,
         });
-        console.log(state);
     }
 
-    function updateUsername(e: React.ChangeEvent<HTMLInputElement>) {
-        setState({
-            ...state,
-            username: e.target.value,
-            usernameError: false,
-            usernameErrorMessage: "",
-        });
-        console.log(state);
-    }
-
-    function updateErrorMessages(errors: ErrorsObject) {
-        if (errors.username) {
-            setState({
-                ...state,
-                usernameError: true,
-                usernameErrorMessage: errors.username,
-            });
-        }
-
-        if (errors.password) {
-            setState({
-                ...state,
-                passwordError: true,
-                passwordErrorMessage: errors.password,
-            });
-        }
-
-        if (errors.other) {
-            console.log(errors.other);
-            setState({
-                ...state,
-                otherErrorMessage: errors.other,
-            });
-        }
-    }
-
-    // Promise<T> vs Promise<any> ?
-    // should of written an async thunk
     const handleSubmit = async (): Promise<any> => {
         dispatch(
-            loginUser({ username: state.username, password: state.password })
-        );
-
-        // await axios
-        //     .post(
-        //         "http://localhost:8000/users/login",
-        //         { username: state.username, password: state.password },
-        //         { withCredentials: true } // need for cookies?
-        //     )
-        //     .then((response) => {
-        //         console.log(response.data.username);
-        //         // dispatch(logInUser(userInfo))
-        //         // dispatch(updateUsername())
-        //         dispatch(logInUser(response.data.username));
-        //         // update redux store
-        //         // redirect to
-        //         setState({
-        //             ...state,
-        //             loginSuccess: true,
-        //         });
-        //     })
-        //     .catch((err) => {
-        //         updateErrorMessages(err.response.data);
-        //     });
+            loginUser({
+                username: state.username,
+                password: state.password,
+            })
+        )
+            .unwrap()
+            .then(() => {
+                setState({
+                    ...state,
+                    loginSuccess: true,
+                });
+            })
+            .catch((err) => {
+                // login failed axios error
+                // do something with it maybe
+            });
     };
 
     let loggedInPopup = <></>;
 
-    if (state.loginSuccess) {
+    if (state.loginSuccess || user.userId) {
         loggedInPopup = (
             <>
                 <Navigate replace to="/" />;
@@ -170,14 +98,16 @@ function Login() {
             <Grid container item justifyContent="center">
                 <Grid item xs={8} md={4}>
                     <TextField
+                        name="username"
                         type="username"
+                        autoComplete="username"
                         required
                         variant="outlined"
                         fullWidth
                         label="Username"
-                        helperText={state.usernameErrorMessage}
-                        error={state.usernameError}
-                        onChange={updateUsername}
+                        helperText={user.message.username}
+                        error={user.message.username ? true : false}
+                        onChange={updateStateOnChange}
                     />
                 </Grid>
             </Grid>
@@ -185,20 +115,22 @@ function Login() {
             <Grid container item justifyContent="center">
                 <Grid item xs={8} md={4}>
                     <TextField
+                        name="password"
                         required
-                        type="password" // google wants this instead of password
+                        type="password"
+                        autoComplete="current-password"
                         variant="outlined"
                         fullWidth
                         label="Password"
-                        helperText={state.passwordErrorMessage}
-                        error={state.passwordError}
-                        onChange={updatePassword}
+                        helperText={user.message.password}
+                        error={user.message.password ? true : false}
+                        onChange={updateStateOnChange}
                     />
                 </Grid>
             </Grid>
 
             {/* TODO handle unexpected errors better */}
-            <div>{state.otherErrorMessage}</div>
+            <div>{user.message.other}</div>
 
             {loggedInPopup}
 

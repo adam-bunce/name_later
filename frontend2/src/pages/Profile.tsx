@@ -28,6 +28,7 @@ function Profile() {
     return (
         <>
             <Navbar />
+            {/* mae a user info componenet */}
             {userInfo ? <div> {JSON.stringify(userInfo)}</div> : <div></div>}
         </>
     );

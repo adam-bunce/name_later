@@ -14,11 +14,6 @@ app.use(cors({ credentials: true, origin: true }));
 app.use("/users", require("./routes/userRoutes"));
 app.use("/games", require("./routes/gameRoutes"));
 
-const {
-    requireAuth,
-    checkForLoggedIn,
-} = require("./middlewear/authMiddlewear");
-
 app.listen(8000, () => {
     console.log(`listening on http://localhost:${process.env.PORT}`);
 });

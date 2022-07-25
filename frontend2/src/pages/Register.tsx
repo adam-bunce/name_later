@@ -7,110 +7,46 @@ import {
     Alert,
     Link,
 } from "@mui/material";
-import axios from "axios";
 
 import Navbar from "../components/Navbar";
 import { Navigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../app/hooks";
+import { registerUser } from "../features/user/userSlice";
 
 function Register() {
+    const user = useAppSelector((state) => state.user);
+    const dispatch = useAppDispatch();
+
     interface RegisterState {
         password: string;
-        passwordError: boolean;
-        passwordErrorMessage: string;
-
         username: string;
-        usernameError: boolean;
-        usernameErrorMessage: string;
-
-        otherErrorMessage: string;
         registerSuccess: boolean;
-    }
-
-    interface ErrorsObject {
-        username: string;
-        password: string;
-        other: string;
     }
 
     const [state, setState] = useState<RegisterState>({
         password: "",
-        passwordError: false,
-        passwordErrorMessage: "",
-
         username: "",
-        usernameError: false,
-        usernameErrorMessage: "",
-
-        otherErrorMessage: "",
         registerSuccess: false,
     });
 
-    function updatePassword(e: React.ChangeEvent<HTMLInputElement>) {
+    function updateStateOnChange(e: React.ChangeEvent<HTMLInputElement>) {
         setState({
             ...state,
-            password: e.target.value,
-            passwordError: false,
-            passwordErrorMessage: "",
+            [e.target.name]: e.target.value,
         });
-        console.log(state);
-    }
-
-    function updateUsername(e: React.ChangeEvent<HTMLInputElement>) {
-        setState({
-            ...state,
-            username: e.target.value,
-            usernameError: false,
-            usernameErrorMessage: "",
-        });
-        console.log(state);
-    }
-
-    function updateErrorMessages(errors: ErrorsObject) {
-        if (errors.username) {
-            setState({
-                ...state,
-                usernameError: true,
-                usernameErrorMessage: errors.username,
-            });
-        }
-
-        if (errors.password) {
-            setState({
-                ...state,
-                passwordError: true,
-                passwordErrorMessage: errors.password,
-            });
-        }
-
-        if (errors.other) {
-            console.log(errors.other);
-            setState({
-                ...state,
-                otherErrorMessage: errors.other,
-            });
-        }
     }
 
     // Promise<T> vs Promise<any> ?
     const handleSubmit = async (): Promise<any> => {
-        await axios
-            .post(
-                "http://localhost:8000/users/register",
-                { username: state.username, password: state.password },
-                { withCredentials: true } // need for cookies?
-            )
-            .then((data) => {
-                console.log(data);
-                // dispatch(logInUser(userInfo))
-                // update redux store
-                // redirect to
-                setState({
-                    ...state,
-                    registerSuccess: true,
-                });
+        dispatch(
+            registerUser({ username: state.username, password: state.password })
+        )
+            .unwrap()
+            .then((response) => {
+                setState({ ...state, registerSuccess: true });
             })
             .catch((err) => {
-                updateErrorMessages(err.response.data);
+                //axios error
             });
     };
 
@@ -142,10 +78,6 @@ function Register() {
             spacing={2}
             pt={4}
         >
-            {/* this looks super cringe but 
-            https://stackoverflow.com/questions/50610049/how-to-organize-material-ui-grid-into-rows 
-            nesting grids is the way to do it without messing  w/ sx prop */}
-
             <Grid container item pb={5}>
                 <Navbar />
             </Grid>
@@ -161,13 +93,15 @@ function Register() {
                 <Grid item xs={8} md={4}>
                     <TextField
                         type="username"
+                        name="username"
+                        autoComplete="username"
                         required
                         variant="outlined"
                         fullWidth
                         label="Username"
-                        helperText={state.usernameErrorMessage}
-                        error={state.usernameError}
-                        onChange={updateUsername}
+                        helperText={user.message.username}
+                        error={user.message.username ? true : false}
+                        onChange={updateStateOnChange}
                     />
                 </Grid>
             </Grid>
@@ -176,19 +110,21 @@ function Register() {
                 <Grid item xs={8} md={4}>
                     <TextField
                         required
-                        type="new-password" // google wants this instead of password
+                        name="password"
+                        type="password"
+                        autoComplete="new-password"
                         variant="outlined"
                         fullWidth
                         label="Password"
-                        helperText={state.passwordErrorMessage}
-                        error={state.passwordError}
-                        onChange={updatePassword}
+                        helperText={user.message.password}
+                        error={user.message.password ? true : false}
+                        onChange={updateStateOnChange}
                     />
                 </Grid>
             </Grid>
 
             {/* TODO handle unexpected errors better */}
-            <div>{state.otherErrorMessage}</div>
+            <div>{user.message.other}</div>
 
             {registeredPopup}
 

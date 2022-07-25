@@ -75,7 +75,7 @@ const registerUser = async (req, res) => {
             httpOnly: true,
             maxAge: 60 * 1000 * 60, // 60min
         }); // 3min
-        res.status(201).json({ userId: user.id });
+        res.status(201).json({ userId: user.id, username: user.username });
         // TODO add redirect to profile page or smth
     } catch (err) {
         const errors = handleErrors(err.errors);
