@@ -23,12 +23,12 @@ const getTopGames = async (req, res) => {
 const getMyGames = async (req, res) => {
     await Game.findAll({
         where: { userId: req.params.id },
-        include: { model: User },
+        attributes: {
+            exclude: ["id", "userId", "UserId", "updatedAt"], //TODO fix the fact there's two user id's (probably from init file belongs to )
+        },
     })
         .then((response) => {
-            // if there's an error in here, catch will run
-            // and header's will be sent twice
-            // (i spelt status wrong which was an error)
+            console.log("response", response);
             res.send(response);
             res.status(200);
         })
@@ -41,9 +41,8 @@ const getMyGames = async (req, res) => {
 const createGame = async (req, res) => {
     const { userId, score } = req.body;
     await Game.create({
-        // TODO do that thing where i dont need to use : if they're the same name
-        userId: userId,
-        score: score,
+        userId,
+        score,
     })
         .then((response) => {
             res.send(`Game ${response.id} created`);

@@ -45,8 +45,7 @@ function App() {
         <>
             <BrowserRouter>
                 <Routes>
-                    <Route path="/" element={<Home />}></Route>{" "}
-                    {/* TODO make the homepage have stuff */}
+                    <Route path="/" element={<Home />}></Route>
                     <Route path="/register" element={<Register />}></Route>
                     <Route path="/login" element={<Login />}></Route>
                     <Route path="/logout" element={<Logout />}></Route>
