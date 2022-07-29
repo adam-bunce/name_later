@@ -1,48 +1,111 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-const randomWords = require("random-words");
+import { ConstructionOutlined } from "@mui/icons-material";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import axios from "axios";
+import { RootState } from "../../app/store";
+const wordsJSON = require("../../static/words.json");
 
 interface gameState {
     wordsPerMinute: number | null;
     wordsCompleted: number;
-    correctWords: number;
+    accuracy: number | null;
+    correctCharacters: number;
+    incorrectCharacters: number;
+    spaces: number;
     textBoxValue: string;
     currentWord: string;
     currentWordIndex: number;
     passage: string[];
     passageBool: boolean[];
-    timer: {
-        isRunning: boolean;
-        time: number;
-    };
 }
 
 const initialState: gameState = {
     wordsPerMinute: 0,
     wordsCompleted: 0,
-    correctWords: 0,
+    accuracy: null,
+    correctCharacters: 0,
+    incorrectCharacters: 0,
+    spaces: 0,
     textBoxValue: "",
     currentWord: "",
     currentWordIndex: 0,
     passage: [],
     passageBool: [],
-    timer: {
-        isRunning: false,
-        time: 30,
-    },
 };
+
+function generateWords(number: number): string[] {
+    let count: number = 0;
+    let words: string[] = [];
+
+    while (count < number) {
+        count++;
+        words.push(wordsJSON.words[Math.floor(Math.random() * 201)]);
+    }
+
+    return words;
+}
+
+export const addGameToDatabase = createAsyncThunk<
+    any,
+    any,
+    { state: RootState }
+>("game/createGame", async (userId: number | null, ThunkAPI) => {
+    const state: RootState = ThunkAPI.getState();
+
+    let wordsPerMinute =
+        ((state.game.correctCharacters + state.game.spaces) / 5) * 12; // for 30 sec
+
+    let accuracy =
+        state.game.correctCharacters /
+        (state.game.correctCharacters + state.game.incorrectCharacters);
+
+    try {
+        const response = await axios.post("http://localhost:8000/games", {
+            userId: userId,
+            score: wordsPerMinute,
+        });
+        console.log("create game", response);
+        return response;
+    } catch (err: any) {
+        // need to protect this route somehow
+
+        console.log("create game", err);
+        return ThunkAPI.rejectWithValue(err);
+    }
+});
 
 const gameSlice = createSlice({
     name: "game",
     initialState,
     reducers: {
+        resetState(state) {
+            state.wordsCompleted = 0;
+            state.correctCharacters = 0;
+            state.textBoxValue = "";
+            state.currentWord = "";
+            state.currentWordIndex = 0;
+            state.passage = [];
+            state.passageBool = [];
+        },
         generatePassage(state) {
-            state.passage = randomWords({ exactly: 100 });
+            state.passage = generateWords(200);
             state.currentWord = state.passage[0];
         },
         calculateWPM(state) {
             // maybe need to add longer typing sessions 30 is good for now though
-            state.wordsPerMinute = state.wordsCompleted * 30;
+            console.log(state.correctCharacters + " / 5 * 2");
+            // state.wordsPerMinute = (state.correctCharacters / 5) * 12; // for testing w/ 5 sec instead of 30
+
+            console.log("correct char ", state.correctCharacters);
+            console.log("incorrect char ", state.incorrectCharacters);
+            console.log("spaces: ", state.spaces);
+            state.wordsPerMinute =
+                ((state.correctCharacters + state.spaces) / 5) * 12; // for 30 sec
+
+            state.accuracy =
+                state.correctCharacters /
+                (state.correctCharacters + state.incorrectCharacters);
         },
+        gameCompleted() {},
         updateTextBoxValue(state, action: PayloadAction<string>) {
             state.textBoxValue = action.payload;
         },
@@ -60,10 +123,12 @@ const gameSlice = createSlice({
                 state.textBoxValue.split(" ")[0] ===
                 state.passage[state.currentWordIndex]
             ) {
-                state.correctWords++;
+                state.spaces++;
+                state.correctCharacters += word[0].length;
                 state.passageBool.push(true);
             } else {
                 state.passageBool.push(false);
+                state.incorrectCharacters += word[0].length;
             }
 
             // after submission if the index is 9 then pop the firs 9 off so it will hop down a block
@@ -85,8 +150,29 @@ const gameSlice = createSlice({
             state.currentWord = action.payload;
         },
     },
+    extraReducers: (builder) => {
+        builder
+            .addCase(addGameToDatabase.pending, (state) => {
+                console.log("pending");
+            })
+            .addCase(
+                addGameToDatabase.rejected,
+                (state, action: PayloadAction<any>) => {
+                    console.log("rejected");
+                    console.log(action);
+                }
+            )
+            .addCase(addGameToDatabase.fulfilled, (state) => {
+                console.log("fufilled");
+            });
+    },
 });
 
-export const { calculateWPM, updateTextBoxValue, submitWord, generatePassage } =
-    gameSlice.actions;
+export const {
+    resetState,
+    calculateWPM,
+    updateTextBoxValue,
+    submitWord,
+    generatePassage,
+} = gameSlice.actions;
 export default gameSlice.reducer;

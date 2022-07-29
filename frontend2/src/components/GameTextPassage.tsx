@@ -16,7 +16,10 @@ function GameTextPassage() {
     ): boolean {
         textBoxString = textBoxString.split(" ")[0]; //only care about stuff before space
 
-        if (textBoxString.length > passageString.length) {
+        if (
+            passageString !== undefined &&
+            textBoxString.length > passageString.length
+        ) {
             console.log(textBoxString.length > passageString.length);
             return false;
         }
