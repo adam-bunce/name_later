@@ -3,6 +3,8 @@ import Navbar from "../components/Navbar";
 import axios from "axios";
 import { useAppSelector } from "../app/hooks";
 import { Navigate } from "react-router-dom";
+import { Skeleton } from "@mui/material";
+import Chart from "../components/Chart";
 
 function Profile() {
     const user = useAppSelector((state) => state.user);
@@ -24,6 +26,7 @@ function Profile() {
                             "type of created at",
                             typeof response.data.createdAt
                         );
+                        console.log(response);
                         setUserInfo(response.data);
                     }
                 })
@@ -38,6 +41,7 @@ function Profile() {
 
     interface userInfoState {
         score: number;
+        accuracy: number;
         createdAt: Date; // Sequelize.DATE type??
     }
 
@@ -49,29 +53,62 @@ function Profile() {
             <h1>{user.username}</h1>
             <h4>Match History</h4>
             {user.userId ? null : <Navigate replace to="/login" />}
+
+            {userInfo ? (
+                <Chart data={userInfo} />
+            ) : (
+                <div>
+                    <Skeleton />
+                </div>
+            )}
+
             <table>
                 <tr>
                     <th>Score</th>
+                    <th>accuracy</th>
                     <th>Date</th>
                 </tr>
-                {userInfo ? (
-                    userInfo
-                        .slice(0)
-                        .reverse()
-                        .map((game: userInfoState) => {
-                            return (
-                                <tr>
-                                    <td>{game.score}</td>
-                                    <td>{JSON.stringify(game.createdAt)}</td>
-                                </tr>
-                            );
-                        })
-                ) : (
-                    <tr></tr>
-                )}
+                {userInfo
+                    ? userInfo
+                          .slice(0)
+                          .reverse()
+                          .map((game: userInfoState) => {
+                              return (
+                                  <tbody>
+                                      <td>{game.score}</td>
+                                      <td>{game.accuracy}%</td>
+                                      <td>{JSON.stringify(game.createdAt)}</td>
+                                  </tbody>
+                              );
+                          })
+                    : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(() => {
+                          return (
+                              <tbody>
+                                  <td>
+                                      <Skeleton />
+                                  </td>
+                                  <td>
+                                      <Skeleton />
+                                  </td>
+                                  <td>
+                                      <Skeleton />
+                                  </td>
+                              </tbody>
+                          );
+                      })}
             </table>
         </>
     );
 }
 
 export default Profile;
+function ctx(
+    ctx: any,
+    arg1: {
+        type: string;
+        data: any;
+        options: { scales: { y: { stacked: boolean } } };
+    }
+): React.ReactNode {
+    throw new Error("Function not implemented.");
+}

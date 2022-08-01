@@ -39,10 +39,15 @@ const getMyGames = async (req, res) => {
 };
 
 const createGame = async (req, res) => {
-    const { userId, score } = req.body;
+    const userId = res.locals.userId;
+    console.log("-------------------------------------------------------");
+    console.log("create game id: ", userId);
+    const { score, accuracy } = req.body;
+    console.log(req.body);
     await Game.create({
-        userId,
+        UserId: userId,
         score,
+        accuracy,
     })
         .then((response) => {
             res.send(`Game ${response.id} created`);

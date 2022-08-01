@@ -1,21 +1,15 @@
+import { Skeleton } from "@mui/material";
 import React, { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { generatePassage } from "../features/game/gameSlice";
 
 function GameTextPassage() {
     const game = useAppSelector((state) => state.game);
     const dispatch = useAppDispatch();
-
-    useEffect(() => {
-        dispatch(generatePassage());
-    }, []);
-
     function stringsMatch(
         textBoxString: string,
         passageString: string
     ): boolean {
-        textBoxString = textBoxString.split(" ")[0]; //only care about stuff before space
-
+        textBoxString = textBoxString.split(" ")[0];
         if (
             passageString !== undefined &&
             textBoxString.length > passageString.length
@@ -24,15 +18,14 @@ function GameTextPassage() {
             return false;
         }
 
-        // they are the same length or the textbox string is shorter now
+        if (passageString === undefined || textBoxString === undefined) {
+            return false;
+        }
+
         const passageStringArray = passageString.split("");
         const textBoxStringArray = textBoxString.split("");
 
-        console.log(passageStringArray);
-        console.log(textBoxStringArray);
-
         for (var i = 0; i < textBoxStringArray.length; i++) {
-            console.log(passageStringArray[i], textBoxStringArray[i]);
             if (passageStringArray[i] === textBoxStringArray[i]) {
                 continue;
             } else {
@@ -44,54 +37,82 @@ function GameTextPassage() {
         return true;
     }
 
+    // starterIndex = Math.floor(game.currentWordIndex / 10);
+
+    function generateCurrentSection() {
+        const passageStartIndex: number =
+            Math.floor(game.currentWordIndex / 10) * 10;
+        const currentIndex: number = game.currentWordIndex % 10;
+
+        const currentlyTypingWords: string[] = game.targetPassage.slice(
+            passageStartIndex,
+            passageStartIndex + 10
+        ); // 10 words
+
+        const currentlyTypingJSX = currentlyTypingWords.map((word, index) => {
+            if (index == currentIndex) {
+                return (
+                    <>
+                        <span
+                            style={{
+                                borderRadius: "3px",
+                                background: stringsMatch(
+                                    game.textBoxValue,
+                                    word
+                                )
+                                    ? "rgb(221, 221, 221)"
+                                    : "red",
+                            }}
+                        >
+                            {word}
+                        </span>
+                        <span> </span>
+                    </>
+                );
+            } else {
+                if (index < currentIndex) {
+                    return (
+                        <span
+                            style={{
+                                color: game.livePassageBool[index]
+                                    ? "green"
+                                    : "red",
+                            }}
+                        >
+                            {word + " "}
+                        </span>
+                    );
+                } else {
+                    return <span>{word + " "}</span>;
+                }
+            }
+        });
+
+        return currentlyTypingJSX;
+    }
+
+    function generateNextSection() {
+        const passageStartIndex: number =
+            Math.floor(game.currentWordIndex / 10) * 10;
+
+        const typingNext: string[] = game.targetPassage.slice(
+            passageStartIndex + 10,
+            passageStartIndex + 20
+        ); // 10 words
+
+        const typingNextJSX = typingNext.map((word) => {
+            return <span> {word + " "}</span>;
+        });
+
+        return typingNextJSX;
+    }
+
     return (
-        <>
-            <div>
-                {game.passage.slice(0, 10).map((word, index) => {
-                    if (index == game.currentWordIndex) {
-                        return (
-                            <>
-                                <span
-                                    style={{
-                                        borderRadius: "3px",
-                                        background: stringsMatch(
-                                            game.textBoxValue,
-                                            word
-                                        )
-                                            ? "rgb(221, 221, 221)"
-                                            : "red",
-                                    }}
-                                >
-                                    {word}
-                                </span>{" "}
-                                <span></span>{" "}
-                            </>
-                        );
-                    } else {
-                        if (index <= game.passageBool.length) {
-                            return (
-                                <span
-                                    style={{
-                                        color: game.passageBool[index]
-                                            ? "green"
-                                            : "red",
-                                    }}
-                                >
-                                    {" "}
-                                    {word + " "}
-                                </span>
-                            );
-                        } else {
-                            return <span>{word + " "}</span>;
-                        }
-                    }
-                })}
-                <br></br>
-                {game.passage.slice(10, 20).map((word) => {
-                    return <span> {word + " "} </span>;
-                })}
-            </div>
-        </>
+        <div>
+            {generateCurrentSection()}
+            <br></br>
+            {generateNextSection()}
+        </div>
     );
 }
 

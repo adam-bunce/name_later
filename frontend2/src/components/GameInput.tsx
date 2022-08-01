@@ -5,26 +5,26 @@ import {
     updateTextBoxValue,
     submitWord,
     resetState,
-    calculateWPM,
-    generatePassage,
     addGameToDatabase,
+    calculateAccuracy,
+    calculateWPM,
 } from "../features/game/gameSlice";
 import CachedIcon from "@mui/icons-material/Cached";
-import axios from "axios";
 
 function GameInput() {
     const dispatch = useAppDispatch();
     const game = useAppSelector((state) => state.game);
-    const user = useAppSelector((state) => state.user);
+    const user = useAppSelector((state) => state.user); // shouldnt need this b/c user id is on res.locals if it exists, add it to the creation path
 
-    const [time, setTime] = useState(5);
+    const [time, setTime] = useState(15);
     const [timerRunning, setTimerRunning] = useState(false);
+    const [inputDisabled, setInputDisabled] = useState(false);
 
     // i feel like this is kinda jank
     useEffect(() => {
         const interval = setInterval(() => {
             setTime(time - 1);
-            console.log(time);
+            // console.log(time);
         }, 1000);
 
         if (!timerRunning) {
@@ -32,9 +32,17 @@ function GameInput() {
         }
 
         if (time <= 0) {
-            // dispach update wpm
-            // dispatch(calculateWPM());
-            dispatch(addGameToDatabase(user.userId));
+            // if forntend is saved then this will spam dispatch before waiting for next round
+            // but accuracy is null (everything gets reset after timer hits zero) so the seqeulize creation fails
+            console.log(game.submittedPassage);
+            console.log(game.targetPassage);
+
+            dispatch(calculateAccuracy());
+            dispatch(calculateWPM());
+
+            dispatch(addGameToDatabase());
+
+            setInputDisabled(true);
             clearInterval(interval);
         }
 
@@ -47,6 +55,7 @@ function GameInput() {
         <>
             <TextField
                 autoComplete="off"
+                disabled={inputDisabled}
                 value={game.textBoxValue}
                 onChange={(event) => {
                     setTimerRunning(true);
@@ -69,22 +78,17 @@ function GameInput() {
                 {/* reset/restart game button */}
                 <Button
                     onClick={() => {
-                        setTime(5);
+                        console.log(game.submittedPassage);
+                        setTime(15);
                         setTimerRunning(false);
+                        setInputDisabled(false);
                         dispatch(resetState());
-                        dispatch(generatePassage());
                     }}
                     variant="contained"
                 >
                     <CachedIcon />
                 </Button>
             </span>
-
-            <div>WPM: {game.wordsPerMinute}</div>
-            <div>
-                accuracy:{" "}
-                {game.accuracy ? Math.round(game.accuracy * 100) : "play"}%
-            </div>
         </>
     );
 }

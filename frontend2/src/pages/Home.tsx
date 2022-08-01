@@ -1,3 +1,4 @@
+import { Grid } from "@mui/material";
 import React from "react";
 import Game from "../components/Game";
 import Leaderboard from "../components/Leaderboard";
@@ -9,8 +10,6 @@ function Home() {
         <>
             <Navbar />
             <Game />
-
-            <TempGame />
 
             <Leaderboard />
         </>

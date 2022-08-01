@@ -9,17 +9,11 @@ const Game = sequelize.define("Game", {
         autoIncrement: true,
         primaryKey: true,
     },
-    // foreign key (user has many games)
-    // if its null then anon user
-    // if this doesnt exist then the use was play w/o an account so anon on frontend
-    userId: {
-        type: DataTypes.INTEGER,
-        references: {
-            model: User,
-            key: "id",
-        },
-    },
     score: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+    accuracy: {
         type: DataTypes.INTEGER,
         allowNull: false,
     },

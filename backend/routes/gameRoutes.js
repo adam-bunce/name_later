@@ -14,7 +14,6 @@ const {
 
 router.get("/", getTopGames);
 router.get("/:id", requireAuth, getMyGames);
-router.post("/", createGame); // should protect this route somehow (so users cant hit endpoint
-// and make them have the insta highscore w/o playing)
+router.post("/", checkForLoggedIn, createGame);
 
 module.exports = router;
