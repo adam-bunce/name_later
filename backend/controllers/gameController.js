@@ -11,7 +11,7 @@ const getTopGames = async (req, res) => {
         where: {
             createdAt: { [Op.gt]: TODAY_START, [Op.lt]: NOW },
         },
-        attributes: ["score"],
+        attributes: ["score", "accuracy", "duration"],
         include: [{ model: User, attributes: ["username"] }],
         order: [["score", "DESC"]],
         limit: 10,
@@ -42,12 +42,13 @@ const createGame = async (req, res) => {
     const userId = res.locals.userId;
     console.log("-------------------------------------------------------");
     console.log("create game id: ", userId);
-    const { score, accuracy } = req.body;
+    const { score, accuracy, duration } = req.body;
     console.log(req.body);
     await Game.create({
         UserId: userId,
         score,
         accuracy,
+        duration,
     })
         .then((response) => {
             res.send(`Game ${response.id} created`);

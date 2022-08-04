@@ -4,8 +4,6 @@ import { AppBar, Box, Grid, Toolbar, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import { useAppSelector } from "../app/hooks";
 
-// TODO need to conditionally render username and logout/login options
-
 function Navbar() {
     const user = useAppSelector((state) => state.user);
     return (
@@ -13,7 +11,7 @@ function Navbar() {
             <AppBar>
                 <Toolbar>
                     <Grid container direction="row" alignItems={"center"}>
-                        <Grid item xs={6} md={8}>
+                        <Grid item xs={6} md={10}>
                             <Link to="/" style={{ textDecoration: "none" }}>
                                 <Typography variant="h4" color="#FFFFFF">
                                     Home
@@ -23,7 +21,7 @@ function Navbar() {
                         {/*TODO style this better */}
                         {user.username ? (
                             <>
-                                <Grid item xs={3} md={2}>
+                                <Grid item xs={3} md={1}>
                                     <Link
                                         to="/logout"
                                         style={{ textDecoration: "none" }}
@@ -33,7 +31,7 @@ function Navbar() {
                                         </Typography>
                                     </Link>
                                 </Grid>
-                                <Grid item xs={3} md={2} alignItems="center">
+                                <Grid item xs={3} md={1} alignItems="center">
                                     <Link
                                         to="/profile"
                                         style={{ textDecoration: "none" }}
@@ -46,17 +44,25 @@ function Navbar() {
                             </>
                         ) : (
                             <>
-                                <Grid item xs={3} md={2}>
-                                    <Typography variant="h6">
-                                        <Link to="/login" color="inherit">
+                                <Grid item xs={3} md={1}>
+                                    <Link
+                                        to="/login"
+                                        style={{ textDecoration: "none" }}
+                                    >
+                                        <Typography variant="h6" color="white">
                                             Login
-                                        </Link>
-                                    </Typography>
+                                        </Typography>
+                                    </Link>
                                 </Grid>
-                                <Grid item xs={3} md={2} alignItems="center">
-                                    <Typography variant="h6">
-                                        <Link to="/register">Register</Link>
-                                    </Typography>
+                                <Grid item xs={3} md={1} alignItems="center">
+                                    <Link
+                                        to="/register"
+                                        style={{ textDecoration: "none" }}
+                                    >
+                                        <Typography variant="h6" color="white">
+                                            Register
+                                        </Typography>
+                                    </Link>
                                 </Grid>
                             </>
                         )}

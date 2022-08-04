@@ -17,6 +17,10 @@ const Game = sequelize.define("Game", {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
+    duration: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
     createdAt: Sequelize.DATE,
     updatedAt: Sequelize.DATE,
 });

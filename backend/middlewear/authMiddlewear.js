@@ -29,7 +29,7 @@ const checkForLoggedIn = (req, res, next) => {
             console.log(err);
             // res.status(400).send(err);
             res.locals.userId = null;
-            // next();
+            next();
         } else {
             //console.log(decodedToken);
             console.log("decoded token", decodedToken.id);

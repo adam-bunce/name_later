@@ -1,4 +1,8 @@
-import { ConstructionOutlined, Satellite } from "@mui/icons-material";
+import {
+    ConstructionOutlined,
+    Satellite,
+    SatelliteAlt,
+} from "@mui/icons-material";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import { RootState } from "../../app/store";
@@ -12,6 +16,7 @@ interface gameState {
     livePassageBool: boolean[];
     wordsPerMinute: number | null;
     accuracy: number | null;
+    testSeconds: number;
 }
 
 const initialState: gameState = {
@@ -22,6 +27,7 @@ const initialState: gameState = {
     livePassageBool: [],
     wordsPerMinute: null,
     accuracy: null,
+    testSeconds: 15,
 };
 
 function generateWords(number: number): string[] {
@@ -44,6 +50,7 @@ export const addGameToDatabase = createAsyncThunk<
     const state: RootState = ThunkAPI.getState();
     const accuracy = state.game.accuracy;
     const score = state.game.wordsPerMinute;
+    const duration = state.game.testSeconds;
 
     try {
         const response = await axios.post(
@@ -51,6 +58,7 @@ export const addGameToDatabase = createAsyncThunk<
             {
                 score,
                 accuracy,
+                duration,
             },
             { withCredentials: true }
         );
@@ -80,13 +88,16 @@ const gameSlice = createSlice({
         updateTextBoxValue(state, action: PayloadAction<string>) {
             state.textBoxValue = action.payload;
         },
+        updateTime(state, action: PayloadAction<number>) {
+            state.testSeconds = action.payload;
+        },
         submitWord(state) {
             const submittedWords = state.textBoxValue.split(" ");
             const targetWord = state.targetPassage[state.currentWordIndex];
 
             console.log(`"${submittedWords[0]}" vs "${targetWord}"`);
 
-            if (submittedWords[0] == targetWord) {
+            if (submittedWords[0] === targetWord) {
                 state.livePassageBool.push(true);
             } else {
                 state.livePassageBool.push(false);
@@ -102,14 +113,49 @@ const gameSlice = createSlice({
             state.currentWordIndex++;
         },
         calculateWPM(state) {
-            setTimeout(() => {}, 1000);
-            state.wordsPerMinute = 102;
-            console.log(state.wordsPerMinute);
+            let correctWordChars = 0;
+
+            for (let i = 0; i < state.submittedPassage.length; i++) {
+                if (state.submittedPassage[i] === state.targetPassage[i]) {
+                    // word is correct
+                    // +1 for space
+                    correctWordChars += state.submittedPassage[i].length;
+                    correctWordChars += 1;
+                }
+            }
+
+            state.wordsPerMinute = Math.round(
+                (correctWordChars * (60 / state.testSeconds)) / 5
+            );
         },
         calculateAccuracy(state) {
-            setTimeout(() => {}, 1000);
-            state.accuracy = 101;
-            console.log(state.accuracy);
+            let correctChar = 0;
+            let incorrectChar = 0;
+
+            for (let i = 0; i < state.submittedPassage.length; i++) {
+                if (state.submittedPassage[i] === state.targetPassage[i]) {
+                    correctChar += state.submittedPassage[i].length;
+                    correctChar += 1;
+                    continue;
+                } else {
+                    // check if any of the characters in the word were correct
+                    for (let j = 0; j < state.submittedPassage[i].length; j++) {
+                        if (
+                            state.submittedPassage[i][j] ===
+                            state.targetPassage[i][j]
+                        ) {
+                            correctChar++;
+                        } else {
+                            incorrectChar++;
+                        }
+                    }
+                    incorrectChar++;
+                }
+            }
+
+            state.accuracy = Math.round(
+                (correctChar / (correctChar + incorrectChar)) * 100
+            );
         },
     },
     extraReducers: (builder) => {
@@ -133,6 +179,7 @@ const gameSlice = createSlice({
 export const {
     resetState,
     updateTextBoxValue,
+    updateTime,
     submitWord,
     calculateWPM,
     calculateAccuracy,

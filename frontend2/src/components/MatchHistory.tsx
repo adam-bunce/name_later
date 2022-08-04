@@ -15,39 +15,56 @@ import {
 } from "@mui/material";
 
 import ReplayIcon from "@mui/icons-material/Replay";
+import { useAppSelector } from "../app/hooks";
 
-function Leaderboard() {
-    interface leaderboardState {
+function MatchHistory() {
+    const user = useAppSelector((state) => state.user);
+
+    interface matchHistoryState {
         score: number;
         accuracy: number;
         duration: number;
-        User: { username: string };
+        createdAt: string;
     }
 
-    const [leaderboardData, setLeaderboardData] =
-        useState<Array<leaderboardState>>();
+    const [matchHistory, setMatchHistory] =
+        useState<Array<matchHistoryState>>();
 
-    const getLeaderBoardData = async () => {
+    const getMatchHistory = async () => {
+        if (user.userId === null) {
+            return;
+        }
+
         await axios
-            .get("http://localhost:8000/games", {}) // need to edit this controller to do a table join for username
+            .get(`http://localhost:8000/games/${user.userId}`, {
+                withCredentials: true,
+            })
             .then((response) => {
-                console.log(response.data);
-                setLeaderboardData(response.data);
+                if (response) {
+                    // console.log("response from get me", response);
+                    console.log(
+                        "type of created at",
+                        typeof response.data.createdAt
+                    );
+                    console.log(response);
+                    setMatchHistory(response.data);
+                }
             })
             .catch((err) => {
+                // setUserInfo(err.response.data);
                 console.log(err);
             });
     };
 
     useEffect(() => {
-        getLeaderBoardData();
+        getMatchHistory();
     }, []);
 
     return (
         <Grid container p={5} justifyContent={"center"}>
             <Grid item xs={10} md={6} lg={4}>
                 <Typography variant="h4" align="center">
-                    Leaderboard
+                    Match History
                 </Typography>
                 <TableContainer
                     component={Paper}
@@ -56,48 +73,39 @@ function Leaderboard() {
                 >
                     <Table>
                         <TableHead>
-                            <TableCell>Rank</TableCell>
-                            <TableCell>User</TableCell>
                             <TableCell>WPM</TableCell>
                             <TableCell>Accuracy</TableCell>
                             <TableCell>Length (sec) </TableCell>
+                            <TableCell>Date </TableCell>
                         </TableHead>
                         <TableBody>
-                            {leaderboardData ? (
+                            {matchHistory ? (
                                 <>
-                                    {leaderboardData.map(
-                                        (
-                                            game: leaderboardState,
-                                            index
-                                        ): ReactElement => {
-                                            let username = "";
-
-                                            game.User
-                                                ? (username =
-                                                      game.User.username)
-                                                : (username = "Anon");
-
-                                            return (
-                                                <TableRow>
-                                                    <TableCell>
-                                                        {index + 1}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {username}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {game.score}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {game.accuracy}%
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {game.duration}
-                                                    </TableCell>
-                                                </TableRow>
-                                            );
-                                        }
-                                    )}
+                                    {matchHistory
+                                        .slice()
+                                        .reverse()
+                                        .map(
+                                            (
+                                                game: matchHistoryState
+                                            ): ReactElement => {
+                                                return (
+                                                    <TableRow>
+                                                        <TableCell>
+                                                            {game.score}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {game.accuracy}%
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {game.duration}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {game.createdAt}
+                                                        </TableCell>
+                                                    </TableRow>
+                                                );
+                                            }
+                                        )}
                                 </>
                             ) : (
                                 <>
@@ -129,20 +137,9 @@ function Leaderboard() {
                         </TableBody>
                     </Table>
                 </TableContainer>
-                <br />
-                <Button
-                    variant="contained"
-                    endIcon={<ReplayIcon />}
-                    onClick={() => {
-                        setLeaderboardData(undefined);
-                        getLeaderBoardData();
-                    }}
-                >
-                    Refresh
-                </Button>
             </Grid>
         </Grid>
     );
 }
 
-export default Leaderboard;
+export default MatchHistory;

@@ -1,4 +1,4 @@
-import { Skeleton } from "@mui/material";
+import { Skeleton, Typography, Paper } from "@mui/material";
 import React, { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 
@@ -37,8 +37,6 @@ function GameTextPassage() {
         return true;
     }
 
-    // starterIndex = Math.floor(game.currentWordIndex / 10);
-
     function generateCurrentSection() {
         const passageStartIndex: number =
             Math.floor(game.currentWordIndex / 10) * 10;
@@ -61,7 +59,7 @@ function GameTextPassage() {
                                     word
                                 )
                                     ? "rgb(221, 221, 221)"
-                                    : "red",
+                                    : "#f44336",
                             }}
                         >
                             {word}
@@ -76,7 +74,7 @@ function GameTextPassage() {
                             style={{
                                 color: game.livePassageBool[index]
                                     ? "green"
-                                    : "red",
+                                    : "#ba000d",
                             }}
                         >
                             {word + " "}
@@ -108,11 +106,13 @@ function GameTextPassage() {
     }
 
     return (
-        <div>
-            {generateCurrentSection()}
-            <br></br>
-            {generateNextSection()}
-        </div>
+        <Paper variant="outlined" elevation={1}>
+            <Typography variant="h5" p={5}>
+                {generateCurrentSection()}
+                <br />
+                {generateNextSection()}
+            </Typography>
+        </Paper>
     );
 }
 
