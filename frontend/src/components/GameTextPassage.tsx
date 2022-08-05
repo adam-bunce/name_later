@@ -1,10 +1,8 @@
-import { Skeleton, Typography, Paper } from "@mui/material";
-import React, { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "../app/hooks";
+import { Typography, Paper } from "@mui/material";
+import { useAppSelector } from "../app/hooks";
 
 function GameTextPassage() {
     const game = useAppSelector((state) => state.game);
-    const dispatch = useAppDispatch();
     function stringsMatch(
         textBoxString: string,
         passageString: string

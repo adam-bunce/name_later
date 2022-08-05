@@ -2,8 +2,6 @@ const { Sequelize, DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
 const bcrypt = require("bcrypt");
 
-const Game = require("./gameModel");
-
 const User = sequelize.define(
     "User",
     {
@@ -45,7 +43,6 @@ const User = sequelize.define(
     }
 );
 
-// TODO remve password from found user
 User.login = async (username, password) => {
     const user = await User.findOne({ where: { username: username } });
 
@@ -53,7 +50,6 @@ User.login = async (username, password) => {
         const matches = await bcrypt.compare(password, user.password);
 
         if (matches) {
-            // TODO only return needed parts of user (key ig)
             return user.dataValues;
         }
         throw Error("incorrect password");

@@ -12,6 +12,7 @@ import Navbar from "../components/Navbar";
 import { Navigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { loginUser } from "../features/user/userSlice";
+import { resetState } from "../features/game/gameSlice";
 
 function Login() {
     const user = useAppSelector((state) => state.user);
@@ -49,10 +50,10 @@ function Login() {
                     ...state,
                     loginSuccess: true,
                 });
+                dispatch(resetState());
             })
             .catch((err) => {
                 // login failed axios error
-                // do something with it maybe
             });
     };
 

@@ -1,8 +1,3 @@
-import {
-    ConstructionOutlined,
-    Satellite,
-    SatelliteAlt,
-} from "@mui/icons-material";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import { RootState } from "../../app/store";
@@ -23,7 +18,7 @@ const initialState: gameState = {
     textBoxValue: "",
     currentWordIndex: 0,
     targetPassage: generateWords(200),
-    submittedPassage: [], // .push(submission.split(''))
+    submittedPassage: [],
     livePassageBool: [],
     wordsPerMinute: null,
     accuracy: null,
@@ -62,12 +57,8 @@ export const addGameToDatabase = createAsyncThunk<
             },
             { withCredentials: true }
         );
-        console.log("create game", response);
         return response;
     } catch (err: any) {
-        // need to protect this route somehow
-
-        console.log("create game", err);
         return ThunkAPI.rejectWithValue(err);
     }
 });
@@ -94,8 +85,6 @@ const gameSlice = createSlice({
         submitWord(state) {
             const submittedWords = state.textBoxValue.split(" ");
             const targetWord = state.targetPassage[state.currentWordIndex];
-
-            console.log(`"${submittedWords[0]}" vs "${targetWord}"`);
 
             if (submittedWords[0] === targetWord) {
                 state.livePassageBool.push(true);

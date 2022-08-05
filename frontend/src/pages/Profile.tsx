@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import axios from "axios";
 import { useAppSelector } from "../app/hooks";
 import { Navigate } from "react-router-dom";
-import { Skeleton, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 
 import Chart from "../components/Chart";
 import MatchHistory from "../components/MatchHistory";
@@ -23,19 +23,11 @@ function Profile() {
                 })
                 .then((response) => {
                     if (response) {
-                        // console.log("response from get me", response);
-                        console.log(
-                            "type of created at",
-                            typeof response.data.createdAt
-                        );
-                        console.log(response);
                         setUserInfo(response.data);
-                        console.log("userInfo", userInfo);
                     }
                 })
                 .catch((err) => {
                     setUserInfo(err.response.data);
-                    console.log(err);
                 });
         };
 
@@ -49,7 +41,7 @@ function Profile() {
         createdAt: string; // Sequelize.DATE type??
     }
 
-    const [userInfo, setUserInfo] = useState<userInfoState[]>([]); // i dont think this is optimal lol
+    const [userInfo, setUserInfo] = useState<userInfoState[]>([]);
 
     return (
         <>
@@ -59,7 +51,6 @@ function Profile() {
             </Typography>
             <Chart data={userInfo} />
             {user.userId ? null : <Navigate replace to="/login" />}
-            {/** graph goes here */}
             <MatchHistory />
         </>
     );

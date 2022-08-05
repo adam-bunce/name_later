@@ -1,20 +1,14 @@
 // create slice defines reducer logic, paylaod action describes the content of an action
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { BaseThunkAPI } from "@reduxjs/toolkit/dist/createAsyncThunk";
-import axios from "axios";
 
-// const login = require("./userService");
 import userService from "./userService";
 
-// this one is usd in login componenet
 export const loginUser = createAsyncThunk(
     "user/login",
     async (user: any, { rejectWithValue }) => {
-        const { username, password } = user;
         try {
             const response = await userService.login(user);
             return response.data;
-            // return value;
         } catch (err: any) {
             return rejectWithValue(err);
         }
@@ -53,7 +47,7 @@ const initialState: UserState = {
 
 const userSlice = createSlice({
     name: "user",
-    initialState: initialState, // could use object shorthand
+    initialState: initialState,
     reducers: {
         // used in useEffect hook after hitting /me endpoint with jwt that may or may not exist
         logInUser(state, action: PayloadAction<any>) {

@@ -12,14 +12,20 @@ const {
     checkForLoggedIn,
 } = require("../middlewear/authMiddlewear");
 
-// /me should be protected w/ JWT AUTH middlewear
+// /users/me
+// gets specifc user's information, must have valid JWT
 router.get("/me", requireAuth, getMe);
 
-// public
+// /users/register
+// add new user to database
 router.post("/register", registerUser);
 
-// public
+// /users/login
+// create jwt for user authentication/authorization
 router.post("/login", loginUser);
+
+// user/logout
+// deletes jwt to log out user
 router.get("/logout", logoutUser);
 
 module.exports = router;

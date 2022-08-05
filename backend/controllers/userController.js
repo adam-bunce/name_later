@@ -5,10 +5,7 @@ const User = require("../models/userModel");
 
 // protected
 const getMe = async (req, res) => {
-    console.log("locals", res.locals.userId); //makes no sense this is res lol
-    console.log("jwt", req.cookies.jwt);
-
-    // if no jwt cookei then leave
+    // if no jwt cookie then leave
     if (req.cookies.jwt) {
         jwt.verify(
             req.cookies.jwt,
@@ -26,10 +23,8 @@ const getMe = async (req, res) => {
     }
 };
 
-// maybe i can generalize the error handleing into one function then  make it middlewear
 const handleErrors = (errors) => {
     errorMessages = { username: "", password: "", other: "" };
-    console.log(errors);
 
     if (errors) {
         for (const err of errors) {
@@ -73,13 +68,11 @@ const registerUser = async (req, res) => {
         console.log("token", token);
         res.cookie("jwt", token, {
             httpOnly: true,
-            maxAge: 60 * 1000 * 60, // 60min
-        }); // 3min
+            maxAge: 60 * 1000 * 60, // remain logged in for 1hr
+        });
         res.status(201).json({ userId: user.id, username: user.username });
-        // TODO add redirect to profile page or smth
     } catch (err) {
         const errors = handleErrors(err.errors);
-        console.log(errors);
         res.status(400).json(errors);
     }
 };
@@ -102,21 +95,16 @@ const loginUser = async (req, res) => {
             res.status(200);
         }
     } catch (err) {
-        console.log(err.message);
         const errors = handleLoginErrors(err.message);
-        console.log(errors);
         res.status(400).json(errors);
     }
 };
 
-// make the cookie expire effectivley logging them out
+// make the cookie expire effectively logging them out
 const logoutUser = async (req, res) => {
     res.cookie("jwt", "", { httpOnly: true, maxAge: 1000 });
-    // res.send("uhh uhh uhh "); // this somehow fixed the cookies not being made
     res.send("logged out"); // i need this for some reason or it just doesnt work ?
     res.status(200);
 };
-
-// TODO write a method specifaically for checking if a user is logged in
 
 module.exports = { getMe, registerUser, loginUser, logoutUser };

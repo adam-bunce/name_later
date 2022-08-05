@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Home from "./pages/Home";
@@ -13,9 +13,7 @@ function App() {
     const dispatch = useAppDispatch();
 
     // try to log user in w/ jwt on app load, if it doesnt exist the user doesnt get logged in
-    // maybe i can move this into redux
-    // this hits a diff endpoint thatn the usualy login function, maybe
-    // make another async thunk to handle this
+    // kinda garbage tbh
     useEffect(() => {
         const checkLoggedin = async () => {
             await axios

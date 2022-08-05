@@ -18,8 +18,6 @@ import {
 
 import ReplayIcon from "@mui/icons-material/Replay";
 
-// update both past day and all time on refresh click/load then use toggle to toggle which one is seen
-
 function Leaderboard() {
     interface leaderboard {
         score: number;
@@ -37,7 +35,7 @@ function Leaderboard() {
 
     const [alignment, setAlignment] = useState<string>("all");
 
-    const getLeaderBoardData = async (time: string) => {
+    const getLeaderBoardData = async () => {
         await axios
             .get(`http://localhost:8000/games/top`, {})
             .then((response) => {
@@ -63,7 +61,7 @@ function Leaderboard() {
     };
 
     useEffect(() => {
-        getLeaderBoardData("all");
+        getLeaderBoardData();
     }, []);
 
     return (
@@ -163,7 +161,6 @@ function Leaderboard() {
                         </TableBody>
                     </Table>
                 </TableContainer>
-                {/* TODO these buttons are too big and blocky on normal screens make them skinnier always (no word stacking unless mobile)*/}
                 <Grid item container xs={12} md={12} lg={12} m={1}>
                     <Grid item xs={6} sm={7} justifyContent="center">
                         <Button
@@ -172,7 +169,7 @@ function Leaderboard() {
                             endIcon={<ReplayIcon />}
                             onClick={() => {
                                 setLeaderboardData(undefined);
-                                getLeaderBoardData(alignment);
+                                getLeaderBoardData();
                             }}
                         >
                             Refresh

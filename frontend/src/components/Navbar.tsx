@@ -1,4 +1,3 @@
-import React from "react";
 import { AppBar, Box, Button, Grid, Toolbar, Typography } from "@mui/material";
 
 import { Link } from "react-router-dom";
@@ -18,7 +17,6 @@ function Navbar() {
                                 </Typography>
                             </Link>
                         </Grid>
-                        {/*TODO style this better */}
                         {user.username ? (
                             <>
                                 <Grid item xs={3} md={1}>

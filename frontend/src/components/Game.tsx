@@ -6,7 +6,6 @@ import GameWPMPopup from "./GameWPMPopup";
 
 function Game() {
     return (
-        // length of text changes on each refresh which moves stuff around kinda annoying
         <Grid container mt={5} direction="column" alignItems="center">
             <Grid container direction="row" justifyContent={"center"}>
                 <Grid

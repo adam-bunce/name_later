@@ -2,7 +2,6 @@ const Game = require("../models/gameModel");
 const User = require("../models/userModel");
 const { Op } = require("sequelize");
 
-// top games in last day
 const getTopGames = async (req, res) => {
     const TODAY_START = new Date().setHours(0, 0, 0, 0);
     const NOW = new Date();
@@ -29,11 +28,10 @@ const getMyGames = async (req, res) => {
     await Game.findAll({
         where: { userId: req.params.id },
         attributes: {
-            exclude: ["id", "userId", "UserId", "updatedAt"], //TODO fix the fact there's two user id's (probably from init file belongs to )
+            exclude: ["id", "userId", "UserId", "updatedAt"],
         },
     })
         .then((response) => {
-            console.log("response", response);
             res.send(response);
             res.status(200);
         })
@@ -45,8 +43,6 @@ const getMyGames = async (req, res) => {
 
 const createGame = async (req, res) => {
     const userId = res.locals.userId;
-    console.log("-------------------------------------------------------");
-    console.log("create game id: ", userId);
     const { score, accuracy, duration } = req.body;
     console.log(req.body);
     await Game.create({

@@ -1,5 +1,5 @@
-import { Box, Card, CardContent, Typography } from "@mui/material";
-import React, { useEffect } from "react";
+import { Card, CardContent, Typography } from "@mui/material";
+import { useEffect } from "react";
 import { useAppSelector } from "../app/hooks";
 import KeyboardIcon from "@mui/icons-material/Keyboard";
 function GameWPMPopup() {

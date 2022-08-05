@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Grid, MenuItem, Select, TextField } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import {
@@ -15,7 +15,6 @@ import CachedIcon from "@mui/icons-material/Cached";
 function GameInput() {
     const dispatch = useAppDispatch();
     const game = useAppSelector((state) => state.game);
-    const user = useAppSelector((state) => state.user); // shouldnt need this b/c user id is on res.locals if it exists, add it to the creation path
 
     const [time, setTime] = useState(game.testSeconds);
     const [timerRunning, setTimerRunning] = useState(false);
@@ -25,7 +24,6 @@ function GameInput() {
     useEffect(() => {
         const interval = setInterval(() => {
             setTime(time - 1);
-            // console.log(time);
         }, 1000);
 
         if (!timerRunning) {
@@ -33,8 +31,6 @@ function GameInput() {
         }
 
         if (time <= 0) {
-            // if forntend is saved then this will spam dispatch before waiting for next round
-            // but accuracy is null (everything gets reset after timer hits zero) so the seqeulize creation fails
             console.log(game.submittedPassage);
             console.log(game.targetPassage);
 
