@@ -7,17 +7,22 @@ const getTopGames = async (req, res) => {
     const TODAY_START = new Date().setHours(0, 0, 0, 0);
     const NOW = new Date();
 
-    const games = await Game.findAll({
-        where: {
-            createdAt: { [Op.gt]: TODAY_START, [Op.lt]: NOW },
-        },
+    const allGames = await Game.findAll({
         attributes: ["score", "accuracy", "duration"],
         include: [{ model: User, attributes: ["username"] }],
         order: [["score", "DESC"]],
         limit: 10,
     });
 
-    res.send(games).status(200);
+    const pastDayGames = await Game.findAll({
+        where: { createdAt: { [Op.gt]: TODAY_START, [Op.lt]: NOW } },
+        attributes: ["score", "accuracy", "duration"],
+        include: [{ model: User, attributes: ["username"] }],
+        order: [["score", "DESC"]],
+        limit: 10,
+    });
+
+    res.send({ day: pastDayGames, all: allGames }).status(200);
 };
 
 const getMyGames = async (req, res) => {

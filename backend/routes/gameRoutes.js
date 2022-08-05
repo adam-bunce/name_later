@@ -12,7 +12,7 @@ const {
     createGame,
 } = require("../controllers/gameController");
 
-router.get("/", getTopGames);
+router.get("/top", getTopGames); // id can be day or all
 router.get("/:id", requireAuth, getMyGames);
 router.post("/", checkForLoggedIn, createGame);
 

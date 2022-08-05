@@ -7,6 +7,8 @@ function GameWPMPopup() {
 
     useEffect(() => {}, [game.wordsPerMinute]);
 
+    // if 0 this doesnt render (0 is falsy )
+
     return game.wordsPerMinute ? (
         <Card>
             <CardContent>

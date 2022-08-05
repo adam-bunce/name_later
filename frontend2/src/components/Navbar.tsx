@@ -1,5 +1,5 @@
 import React from "react";
-import { AppBar, Box, Grid, Toolbar, Typography } from "@mui/material";
+import { AppBar, Box, Button, Grid, Toolbar, Typography } from "@mui/material";
 
 import { Link } from "react-router-dom";
 import { useAppSelector } from "../app/hooks";
@@ -26,9 +26,17 @@ function Navbar() {
                                         to="/logout"
                                         style={{ textDecoration: "none" }}
                                     >
-                                        <Typography variant="h6" color="white">
+                                        <Button
+                                            sx={{
+                                                color: "white",
+                                                display: "block",
+                                                fontSize: "20px",
+                                                textTransform: "none",
+                                            }}
+                                            size="large"
+                                        >
                                             Logout
-                                        </Typography>
+                                        </Button>
                                     </Link>
                                 </Grid>
                                 <Grid item xs={3} md={1} alignItems="center">
@@ -36,9 +44,17 @@ function Navbar() {
                                         to="/profile"
                                         style={{ textDecoration: "none" }}
                                     >
-                                        <Typography variant="h6" color="white">
+                                        <Button
+                                            sx={{
+                                                color: "white",
+                                                display: "block",
+                                                fontSize: "20px",
+                                                textTransform: "none",
+                                            }}
+                                            size="large"
+                                        >
                                             {user.username}
-                                        </Typography>
+                                        </Button>
                                     </Link>
                                 </Grid>
                             </>
@@ -49,9 +65,17 @@ function Navbar() {
                                         to="/login"
                                         style={{ textDecoration: "none" }}
                                     >
-                                        <Typography variant="h6" color="white">
+                                        <Button
+                                            sx={{
+                                                color: "white",
+                                                display: "block",
+                                                fontSize: "20px",
+                                                textTransform: "none",
+                                            }}
+                                            size="large"
+                                        >
                                             Login
-                                        </Typography>
+                                        </Button>
                                     </Link>
                                 </Grid>
                                 <Grid item xs={3} md={1} alignItems="center">
@@ -59,9 +83,17 @@ function Navbar() {
                                         to="/register"
                                         style={{ textDecoration: "none" }}
                                     >
-                                        <Typography variant="h6" color="white">
+                                        <Button
+                                            sx={{
+                                                color: "white",
+                                                display: "block",
+                                                fontSize: "20px",
+                                                textTransform: "none",
+                                            }}
+                                            size="large"
+                                        >
                                             Register
-                                        </Typography>
+                                        </Button>
                                     </Link>
                                 </Grid>
                             </>

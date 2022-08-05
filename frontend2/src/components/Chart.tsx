@@ -10,6 +10,7 @@ import {
     Tooltip,
     Legend,
 } from "chart.js";
+import { Grid, Skeleton } from "@mui/material";
 
 ChartJS.register(
     CategoryScale,
@@ -26,37 +27,51 @@ function Chart(props: any) {
     console.log("props", props);
 
     let scoreData = [];
-    let accuracyData = [];
     let dateData = [];
+
     for (let i = 0; i < props.data.length; i++) {
         scoreData.push(props.data[i].score);
-        accuracyData.push(props.data[i].accuracy);
         dateData.push(props.data[i].createdAt);
     }
 
     console.log("scoreadata", scoreData);
 
     return (
-        <Line
-            data={{
-                labels: dateData,
+        <>
+            <Grid container justifyContent={"center"}>
+                <Grid item xs={10} md={6} lg={4}>
+                    {props.data ? (
+                        <Line
+                            options={{
+                                plugins: {
+                                    legend: {
+                                        display: false,
+                                    },
+                                },
+                                scales: {
+                                    xAxes: { display: false },
+                                    yAxes: {},
+                                },
+                            }}
+                            data={{
+                                labels: dateData,
 
-                datasets: [
-                    {
-                        label: "WPM",
-                        data: scoreData,
-                        borderColor: "rgb(255, 99, 132)",
-                        backgroundColor: "rgba(255, 99, 132, 0.5)",
-                    },
-                    {
-                        label: "accuracy",
-                        data: accuracyData,
-                        borderColor: "rgb(53, 162, 235)",
-                        backgroundColor: "rgba(53, 162, 235, 0.5)",
-                    },
-                ],
-            }}
-        />
+                                datasets: [
+                                    {
+                                        label: "WPM",
+                                        data: scoreData,
+                                        borderColor: "#2979ff",
+                                        backgroundColor: "#5393ff",
+                                    },
+                                ],
+                            }}
+                        />
+                    ) : (
+                        <Skeleton variant="rectangular" height={250} />
+                    )}
+                </Grid>
+            </Grid>
+        </>
     );
 }
 

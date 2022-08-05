@@ -30,6 +30,7 @@ function Profile() {
                         );
                         console.log(response);
                         setUserInfo(response.data);
+                        console.log("userInfo", userInfo);
                     }
                 })
                 .catch((err) => {
@@ -45,7 +46,7 @@ function Profile() {
         score: number;
         accuracy: number;
         duration: number;
-        createdAt: Date; // Sequelize.DATE type??
+        createdAt: string; // Sequelize.DATE type??
     }
 
     const [userInfo, setUserInfo] = useState<userInfoState[]>([]); // i dont think this is optimal lol
@@ -53,9 +54,10 @@ function Profile() {
     return (
         <>
             <Navbar />
-            <Typography variant="h4" color="primary" align="center">
-                {user.username}
+            <Typography variant="h4" color="primary" align="center" pt={5}>
+                Words Per Minute
             </Typography>
+            <Chart data={userInfo} />
             {user.userId ? null : <Navigate replace to="/login" />}
             {/** graph goes here */}
             <MatchHistory />

@@ -12,35 +12,58 @@ import {
     Button,
     Paper,
     Skeleton,
+    ToggleButtonGroup,
+    ToggleButton,
 } from "@mui/material";
 
 import ReplayIcon from "@mui/icons-material/Replay";
 
+// update both past day and all time on refresh click/load then use toggle to toggle which one is seen
+
 function Leaderboard() {
-    interface leaderboardState {
+    interface leaderboard {
         score: number;
         accuracy: number;
         duration: number;
         User: { username: string };
     }
 
-    const [leaderboardData, setLeaderboardData] =
-        useState<Array<leaderboardState>>();
+    interface leaderboardState {
+        all: leaderboard[];
+        pastDay: leaderboard[];
+    }
 
-    const getLeaderBoardData = async () => {
+    const [leaderboardData, setLeaderboardData] = useState<leaderboardState>();
+
+    const [alignment, setAlignment] = useState<string>("all");
+
+    const getLeaderBoardData = async (time: string) => {
         await axios
-            .get("http://localhost:8000/games", {}) // need to edit this controller to do a table join for username
+            .get(`http://localhost:8000/games/top`, {})
             .then((response) => {
                 console.log(response.data);
-                setLeaderboardData(response.data);
+                setLeaderboardData({
+                    all: response.data.all,
+                    pastDay: response.data.day,
+                });
             })
             .catch((err) => {
                 console.log(err);
             });
     };
 
+    const handleAlignment = (
+        event: React.MouseEvent<HTMLElement>,
+        newAlignment: string
+    ) => {
+        console.log(newAlignment);
+        if (newAlignment !== null) {
+            setAlignment(newAlignment);
+        }
+    };
+
     useEffect(() => {
-        getLeaderBoardData();
+        getLeaderBoardData("all");
     }, []);
 
     return (
@@ -65,24 +88,35 @@ function Leaderboard() {
                         <TableBody>
                             {leaderboardData ? (
                                 <>
-                                    {leaderboardData.map(
+                                    {leaderboardData[
+                                        alignment as keyof leaderboardState
+                                    ].map(
                                         (
-                                            game: leaderboardState,
-                                            index
+                                            game: leaderboard,
+                                            index: number
                                         ): ReactElement => {
-                                            let username = "";
+                                            let username: string = "";
+                                            let userColor: string =
+                                                "rgba(0, 0, 0, 0.87)"; // text.primary not workin?
 
-                                            game.User
-                                                ? (username =
-                                                      game.User.username)
-                                                : (username = "Anon");
+                                            if (game.User) {
+                                                username = game.User.username;
+                                            } else {
+                                                username = "Anon";
+                                                userColor =
+                                                    "rgba(0, 0, 0, 0.6)";
+                                            }
 
                                             return (
                                                 <TableRow>
                                                     <TableCell>
                                                         {index + 1}
                                                     </TableCell>
-                                                    <TableCell>
+                                                    <TableCell
+                                                        style={{
+                                                            color: userColor,
+                                                        }}
+                                                    >
                                                         {username}
                                                     </TableCell>
                                                     <TableCell>
@@ -129,17 +163,34 @@ function Leaderboard() {
                         </TableBody>
                     </Table>
                 </TableContainer>
-                <br />
-                <Button
-                    variant="contained"
-                    endIcon={<ReplayIcon />}
-                    onClick={() => {
-                        setLeaderboardData(undefined);
-                        getLeaderBoardData();
-                    }}
-                >
-                    Refresh
-                </Button>
+                {/* TODO these buttons are too big and blocky on normal screens make them skinnier always (no word stacking unless mobile)*/}
+                <Grid item container xs={12} md={12} lg={12} m={1}>
+                    <Grid item xs={6} sm={8} justifyContent="center">
+                        <Button
+                            sx={{ height: "100%" }}
+                            variant="contained"
+                            endIcon={<ReplayIcon />}
+                            onClick={() => {
+                                setLeaderboardData(undefined);
+                                getLeaderBoardData(alignment);
+                            }}
+                        >
+                            Refresh
+                        </Button>
+                    </Grid>
+                    <Grid item xs={6} sm={4}>
+                        <ToggleButtonGroup
+                            exclusive
+                            value={alignment}
+                            onChange={handleAlignment}
+                        >
+                            <ToggleButton value="all">All Time</ToggleButton>
+                            <ToggleButton value="pastDay">
+                                24 Hours
+                            </ToggleButton>
+                        </ToggleButtonGroup>
+                    </Grid>
+                </Grid>
             </Grid>
         </Grid>
     );
